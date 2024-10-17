@@ -3,15 +3,15 @@ import { DataGrid } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import useFetchRQ from "../api/fetchRQ"; // Import the data-fetching hook
 import { Button, TextField } from "@mui/material";
-import { useMutation, useQueryClient } from 'react-query'; // Import react-query hooks
+import { useQueryClient } from "react-query"; // Import react-query hooks
+import useDeleteRQ from "../api/deleteRQ"; // Updated import
+import useCrud from "../hooks/useCrud";
 
 // Main DataTable component
 export default function DataTable() {
-  const data = useFetchRQ(); // Use the custom data-fetching hook to get data
+  const { posts = [], deletePosts } = useCrud(); // Use the custom data-fetching hook to get data
   const [newTitle, setNewTitle] = React.useState(""); // State for new title
   const [newBody, setNewBody] = React.useState(""); // State for new body
-
-
 
   // Define columns separately
   const columns = [
@@ -32,7 +32,7 @@ export default function DataTable() {
         <React.Fragment>
           {/* The ID of the current row */}
           <Button
-            onClick={() => deleteMutation.mutate(params.id)}
+            onClick={() => deletePosts(params.id)} // Call delete mutation
             variant="contained"
             color="error"
             size="small"
@@ -54,7 +54,6 @@ export default function DataTable() {
             style={{ marginRight: 10 }}
           />
           <Button
-            onClick={() => handleAddPost(newTitle, newBody)} // Pass title and body
             variant="contained"
             color="primary"
             size="small"
@@ -62,12 +61,7 @@ export default function DataTable() {
           >
             Add
           </Button>
-          <Button
-            onClick={() => handleUpdatePost(params.id, newTitle, newBody)} // Pass ID and data
-            variant="contained"
-            color="secondary"
-            size="small"
-          >
+          <Button variant="contained" color="secondary" size="small">
             Update
           </Button>
         </React.Fragment>
@@ -82,7 +76,7 @@ export default function DataTable() {
       {/* Data Table */}
       <Paper sx={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={data} // Pass the fetched data to the DataGrid
+          rows={posts || []} // Pass the fetched data to the DataGrid
           columns={columns}
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[5, 10]}
